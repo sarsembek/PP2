@@ -1,5 +1,6 @@
 import pygame
 import datetime
+import time
 pygame.init()
 screen = pygame.display.set_mode((1116, 720))
 image=pygame.image.load('lab7\mickey_clock\layer.png')
@@ -20,7 +21,7 @@ while not done:
     rotated_image = pygame.transform.rotate(left_hand, -angle_second)
     rot_image=pygame.transform.rotate(right_hand, -angle_minute)
     screen.blit(rot_image, rot_image.get_rect(center=right_hand.get_rect(center=(558, 360)).center).topleft)
-    screen.blit(rotated_image, rotated_image.get_rect(center=left_hand.get_rect(center=(558, 360)).center).topleft)
+    screen.blit(rotated_image, rotated_image.get_rect(center=left_hand.get_rect(center=(558, 365)).center).topleft)
     pygame.display.flip()
    
     
