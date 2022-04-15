@@ -43,7 +43,7 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.top = 0
             self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
 
-#creating class for enemy
+#creating class for player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() 
@@ -60,6 +60,12 @@ class Player(pygame.sprite.Sprite):
         if self.rect.right < SCREEN_WIDTH:        
               if pressed_keys[K_RIGHT]:
                   self.rect.move_ip(5, 0)
+        if self.rect.top >0:
+            if pressed_keys[K_UP]:
+                self.rect.move_ip(0, -5)
+        if self.rect.bottom<SCREEN_HEIGHT:
+            if pressed_keys[K_DOWN]:
+                self.rect.move_ip(0, 5)
                   
 #creating first player and enemy
 P1 = Player()
@@ -73,34 +79,66 @@ all_sprites.add(E1)
 #new user event to increase speed
 INC_SPEED = pygame.USEREVENT + 1
 pygame.time.set_timer(INC_SPEED, 1000)
+COIN_DISAPPEAR=pygame.USEREVENT+1
+pygame.time.set_timer(COIN_DISAPPEAR, 3000)
+COIN_CHANGE=pygame.USEREVENT+1
+pygame.time.set_timer(COIN_CHANGE, 6000)
 #setting music
 pygame.mixer.music.load(path+'background.wav')
 pygame.mixer.music.play(-122)
 #setting coins
-score_coins=0
 class coin(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image=pygame.image.load(path+'coin.png')
+        self.image=pygame.image.load(path+'coin5.png')
         self.rect=self.image.get_rect()
-        self.rect.center=(random.randint(40,SCREEN_WIDTH-40), 0)
+        self.rect.center=(random.randint(40,SCREEN_WIDTH-40), random.randint(40,SCREEN_HEIGHT-40))
     def move(self):
         global score_coins
         global P1
-        self.rect.move_ip(0, SPEED)
-        if(self.rect.bottom>600 or pygame.sprite.collide_rect(P1, self)):
-            score_coins+=1
+        if pygame.sprite.collide_rect(P1, self):
+            score_coins+=5
             self.rect.top=0
-            self.rect.center=(random.randint(40,SCREEN_WIDTH-40), 0)
+            self.rect.center=(random.randint(40,SCREEN_WIDTH-40),  random.randint(40,SCREEN_HEIGHT-40))
+    def disappear(self):
+        self.top=0
+        self.rect.center=(random.randint(40,SCREEN_WIDTH-40),  random.randint(40,SCREEN_HEIGHT-40))
+class SuperCoin(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image=pygame.image.load(path+'coin10.png')
+        self.rect=self.image.get_rect()
+        self.rect.center=(random.randint(40,SCREEN_WIDTH-40), random.randint(40,SCREEN_HEIGHT-40))
+    def move(self):
+        global score_coins
+        global P1
+        if pygame.sprite.collide_rect(P1, self):
+            score_coins+=10
+            self.rect.top=0
+            self.rect.center=(random.randint(40,SCREEN_WIDTH-40),  random.randint(40,SCREEN_HEIGHT-40))
+    def disappear(self):
+        self.top=0
+        self.rect.center=(random.randint(40,SCREEN_WIDTH-40),  random.randint(40,SCREEN_HEIGHT-40))
+
 C1=coin()
-coins=pygame.sprite.Group()
-coins.add(C1)
+C2=SuperCoin()
+mode=0
+score_coins=0
 #main loop
 while True:
-      
     for event in pygame.event.get():
         if event.type == INC_SPEED:
-              SPEED += 0.5      
+            SPEED += 0.5    
+        if event.type==COIN_DISAPPEAR:
+            if mode==1:
+                C2.disappear()
+            else:
+                C1.disappear()
+        if event.type==COIN_CHANGE:
+            if mode==1:
+                mode=0
+            else:
+                mode=1
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
@@ -111,9 +149,12 @@ while True:
         DISPLAYSURF.blit(background,(0,rel_dy))
     dy+=1
 #moving in main loop
-    for value in coins:
-        value.move()
-        DISPLAYSURF.blit(value.image, value.rect)
+    if mode==1:
+        C1.move()
+        DISPLAYSURF.blit(C1.image, C1.rect)
+    if mode==0:
+        C2.move()
+        DISPLAYSURF.blit(C2.image, C2.rect)
     for entity in all_sprites:
         entity.move()
         DISPLAYSURF.blit(entity.image, entity.rect)
@@ -121,7 +162,7 @@ while True:
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
     SCORE_COINS=font_small.render(str(score_coins), True, BLACK)
-    DISPLAYSURF.blit(SCORE_COINS, (370,10))
+    DISPLAYSURF.blit(SCORE_COINS, (360,10))
 #finding any collide between sprites
     
     if pygame.sprite.spritecollideany(P1, enemies):
