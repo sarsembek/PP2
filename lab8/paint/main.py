@@ -101,7 +101,7 @@ while not finished:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_m:
                 mode += 1
-                mode %= 6
+                mode %= 7
             if event.key == pygame.K_r:
                 screen.fill(WHITE)
     pygame.display.flip()
